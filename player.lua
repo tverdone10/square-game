@@ -11,16 +11,15 @@ local player = {
     friction = 300,
     velocityX = 0,
     velocityY = 0,
-    roomBounds = {                             -- Room boundaries
-        xMin = 50,                             -- Left wall
-        xMax = love.graphics.getWidth() - 50,  -- Right wall
-        yMin = 50,                             -- Top wall
-        yMax = love.graphics.getHeight() - 50, -- Bottom wall
+    roomBounds = {
+        xMin = 50,
+        xMax = love.graphics.getWidth() - 50,
+        yMin = 50,
+        yMax = love.graphics.getHeight() - 50,
     },
     doorSize = 100,
 }
 
--- Helper function to apply acceleration
 local function applyAcceleration(velocity, keyNegative, keyPositive, acceleration, dt)
     if love.keyboard.isDown(keyNegative) then
         velocity = velocity - acceleration * dt
@@ -30,33 +29,8 @@ local function applyAcceleration(velocity, keyNegative, keyPositive, acceleratio
     return velocity
 end
 
-local function handleCollision()
-    local bounds = player.roomBounds
-    local doorSize = player.doorSize
-    local centerX = (bounds.xMax + bounds.xMin) / 2
-    local centerY = (bounds.yMax + bounds.yMin) / 2
-    if player.y < bounds.yMin and not (player.x + player.size > centerX - doorSize / 2 and player.x < centerX + doorSize / 2) then
-        player.y = bounds.yMin
-        player.velocityY = -player.velocityY
-    end
 
-    if player.y + player.size > bounds.yMax and not (player.x + player.size > centerX - doorSize / 2 and player.x < centerX + doorSize / 2) then
-        player.y = bounds.yMax - player.size
-        player.velocityY = -player.velocityY
-    end
 
-    if player.x < bounds.xMin and not (player.y + player.size > centerY - doorSize / 2 and player.y < centerY + doorSize / 2) then
-        player.x = bounds.xMin
-        player.velocityX = -player.velocityX
-    end
-
-    if player.x + player.size > bounds.xMax and not (player.y + player.size > centerY - doorSize / 2 and player.y < centerY + doorSize / 2) then
-        player.x = bounds.xMax - player.size
-        player.velocityX = -player.velocityX
-    end
-end
-
--- Helper function to apply friction
 local function applyFriction(velocity, friction, dt)
     if velocity > 0 then
         return math.max(0, velocity - friction * dt)
@@ -92,14 +66,14 @@ function player.update(dt)
     player.x = player.x + player.velocityX * dt
     player.y = player.y + player.velocityY * dt
 
-    rooms.checkCollision(player, "top")
-    rooms.checkCollision(player, "bottom")
-    rooms.checkCollision(player, "left")
-    rooms.checkCollision(player, "right")
+    rooms.checkCollision(player)
+    rooms.checkCollision(player)
+    rooms.checkCollision(player)
+    rooms.checkCollision(player)
 end
 
 function player.draw()
-    love.graphics.setColor(0, 0, 0) -- Black player
+    love.graphics.setColor(0, 0, 0)
     love.graphics.rectangle("fill", player.x, player.y, player.size, player.size)
 end
 

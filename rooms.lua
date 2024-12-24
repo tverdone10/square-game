@@ -1,77 +1,111 @@
 local rooms = {}
 
--- Define rooms with their background colors and open doors
 local roomList = {
-    { color = { 0.1, 0.8, 0.1 }, doors = { "top", "bottom", "left", "right" } }, -- Green Room
-    { color = { 0.8, 0.1, 0.1 }, doors = { "top", "bottom" } },                  -- Red Room
-    { color = { 0.1, 0.1, 0.8 }, doors = { "left", "right" } },                  -- Blue Room
-    { color = { 0.8, 0.8, 0.1 }, doors = { "top", "right" } },                   -- Yellow Room
+    {
+        color = { 0.1, 0.8, 0.1 },
+        doors = {
+            top = { x = 300, width = 100 },
+            bottom = { x = 300, width = 100 },
+            left = { y = 200, height = 100 },
+            right = { y = 200, height = 100 },
+        },
+    },
+    {
+        color = { 0.8, 0.1, 0.1 },
+        doors = {
+            top = { x = 300, width = 100 },
+            bottom = { x = 300, width = 100 },
+        },
+    },
+    {
+        color = { 0.1, 0.1, 0.8 }, -- Blue Room
+        doors = {
+            left = { y = 200, height = 100 },
+            right = { y = 200, height = 100 },
+        },
+    },
+    {
+        color = { 0.8, 0.8, 0.1 }, -- Yellow Room
+        doors = {
+            top = { x = 300, width = 100 },
+        },
+    },
 }
+
 
 local currentRoomIndex = 1
 
-local function contains(table, value)
-    for _, v in ipairs(table) do
-        if v == value then
-            return true
-        end
+local function validateRoomIndex()
+    if currentRoomIndex < 1 then
+        currentRoomIndex = 1
+    elseif currentRoomIndex > #roomList then
+        currentRoomIndex = #roomList
     end
-    return false
 end
-
 
 function rooms.load()
     currentRoomIndex = 1
 end
 
 function rooms.draw()
-    -- Draw the current room's background
+    validateRoomIndex()
+
     local room = roomList[currentRoomIndex]
     love.graphics.clear(unpack(room.color))
 
-    -- Draw the room border
     love.graphics.setColor(0, 0, 0)
     love.graphics.setLineWidth(10)
     love.graphics.rectangle("line", 50, 50, love.graphics.getWidth() - 100, love.graphics.getHeight() - 100)
 
-    -- Draw open doors
-    local width = love.graphics.getWidth()
-    local height = love.graphics.getHeight()
-    for _, door in ipairs(room.doors) do
+    local width, height = love.graphics.getWidth(), love.graphics.getHeight()
+    for direction, door in pairs(room.doors) do
         love.graphics.setColor(room.color)
-        if door == "top" then
-            love.graphics.rectangle("fill", width / 2 - 50, 40, 100, 20)
-        elseif door == "bottom" then
-            love.graphics.rectangle("fill", width / 2 - 50, height - 60, 100, 20)
-        elseif door == "left" then
-            love.graphics.rectangle("fill", 40, height / 2 - 50, 20, 100)
-        elseif door == "right" then
-            love.graphics.rectangle("fill", width - 60, height / 2 - 50, 20, 100)
+        if direction == "top" then
+            love.graphics.rectangle("fill", door.x, 40, door.width, 20)
+        elseif direction == "bottom" then
+            love.graphics.rectangle("fill", door.x, height - 60, door.width, 20)
+        elseif direction == "left" then
+            love.graphics.rectangle("fill", 40, door.y, 20, door.height)
+        elseif direction == "right" then
+            love.graphics.rectangle("fill", width - 60, door.y, 20, door.height)
         end
     end
 end
 
-function rooms.checkCollision(player, wall)
+function rooms.checkCollision(player)
     local room = roomList[currentRoomIndex]
     local width, height = love.graphics.getWidth(), love.graphics.getHeight()
 
-    if wall == "top" then
-        if player.y < 50 and not contains(room.doors, "top") then
+    if player.y < 50 then
+        local door = room.doors.top
+        if not (door and player.x + player.size > door.x and player.x < door.x + door.width) then
             player.y = 50
             player.velocityY = -player.velocityY -- Bounce back
         end
-    elseif wall == "bottom" then
-        if player.y + player.size > height - 50 and not contains(room.doors, "bottom") then
+    end
+
+    -- Bottom wall
+    if player.y + player.size > height - 50 then
+        local door = room.doors.bottom
+        if not (door and player.x + player.size > door.x and player.x < door.x + door.width) then
             player.y = height - 50 - player.size
             player.velocityY = -player.velocityY -- Bounce back
         end
-    elseif wall == "left" then
-        if player.x < 50 and not contains(room.doors, "left") then
+    end
+
+    -- Left wall
+    if player.x < 50 then
+        local door = room.doors.left
+        if not (door and player.y + player.size > door.y and player.y < door.y + door.height) then
             player.x = 50
             player.velocityX = -player.velocityX -- Bounce back
         end
-    elseif wall == "right" then
-        if player.x + player.size > width - 50 and not contains(room.doors, "right") then
+    end
+
+    -- Right wall
+    if player.x + player.size > width - 50 then
+        local door = room.doors.right
+        if not (door and player.y + player.size > door.y and player.y < door.y + door.height) then
             player.x = width - 50 - player.size
             player.velocityX = -player.velocityX -- Bounce back
         end
@@ -79,30 +113,42 @@ function rooms.checkCollision(player, wall)
 end
 
 function rooms.checkTransition(player)
-    local x, y = player.x, player.y
-    local width, height = love.graphics.getWidth(), love.graphics.getHeight()
     local room = roomList[currentRoomIndex]
+    local width, height = love.graphics.getWidth(), love.graphics.getHeight()
 
-    if y < 50 and roomHasDoor(room, "top") then
-        return math.max(1, currentRoomIndex - 1)         -- Move to the previous room
-    elseif y > height - 50 - player.size and roomHasDoor(room, "bottom") then
-        return math.min(#roomList, currentRoomIndex + 1) -- Move to the next room
-    elseif x < 50 and roomHasDoor(room, "left") then
-        return (currentRoomIndex == 1) and #roomList or currentRoomIndex - 1
-    elseif x > width - 50 - player.size and roomHasDoor(room, "right") then
-        return (currentRoomIndex == #roomList) and 1 or currentRoomIndex + 1
-    end
-
-    return nil -- No transition
-end
-
-function roomHasDoor(room, direction)
-    for _, door in ipairs(room.doors) do
-        if door == direction then
-            return true
+    -- Top wall transition
+    if player.y < 50 then
+        local door = room.doors.top
+        if door and player.x + player.size > door.x and player.x < door.x + door.width then
+            return math.random(1, #roomList)
         end
     end
-    return false
+
+    -- Bottom wall transition
+    if player.y + player.size > height - 50 then
+        local door = room.doors.bottom
+        if door and player.x + player.size > door.x and player.x < door.x + door.width then
+            return math.random(1, #roomList)
+        end
+    end
+
+    -- Left wall transition
+    if player.x < 50 then
+        local door = room.doors.left
+        if door and player.y + player.size > door.y and player.y < door.y + door.height then
+            return math.random(1, #roomList)
+        end
+    end
+
+    -- Right wall transition
+    if player.x + player.size > width - 50 then
+        local door = room.doors.right
+        if door and player.y + player.size > door.y and player.y < door.y + door.height then
+            return math.random(1, #roomList)
+        end
+    end
+
+    return nil
 end
 
 function rooms.setCurrentRoom(index)

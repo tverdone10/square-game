@@ -1,33 +1,52 @@
 local rooms = {}
-
+local doorWidth = 100
+local doorHeight = 100
+local screenWidth = love.graphics.getWidth()
+local screenHeight = love.graphics.getHeight()
 local roomList = {
     {
         color = { 0.1, 0.8, 0.1 },
         doors = {
-            top = { x = 300, width = 100 },
-            bottom = { x = 300, width = 100 },
-            left = { y = 200, height = 100 },
-            right = { y = 200, height = 100 },
+            top = {
+                x = (screenWidth - doorWidth) / 2,
+                width = doorWidth,
+            },
+            bottom = {
+                x = (screenWidth - doorWidth) / 2,
+                width = doorWidth,
+            },
+            left = { y = (screenHeight - doorHeight) / 2, height = doorHeight },
+            right = { y = (screenHeight - doorHeight) / 2, height = doorHeight },
         },
     },
     {
         color = { 0.8, 0.1, 0.1 },
         doors = {
-            top = { x = 300, width = 100 },
-            bottom = { x = 300, width = 100 },
+            top = {
+                x = (screenWidth - doorWidth) / 2,
+                width = doorWidth,
+            },
+            bottom = {
+                x = (screenWidth - doorWidth) / 2
+                ,
+                width = doorWidth,
+            },
         },
     },
     {
         color = { 0.1, 0.1, 0.8 }, -- Blue Room
         doors = {
-            left = { y = 200, height = 100 },
-            right = { y = 200, height = 100 },
+            left = { y = (screenHeight - doorHeight) / 2, height = doorHeight },
+            right = { y = (screenHeight - doorHeight) / 2, height = doorHeight }
         },
     },
     {
         color = { 0.8, 0.8, 0.1 }, -- Yellow Room
         doors = {
-            top = { x = 300, width = 100 },
+            top = {
+                x = (screenWidth - doorWidth) / 2,
+                width = doorWidth,
+            },
         },
     },
 }

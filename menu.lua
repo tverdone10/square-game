@@ -4,12 +4,12 @@ local menu = {
 }
 
 function menu.draw()
-    love.graphics.clear(0.1, 0.1, 0.1) -- Dark background
+    love.graphics.clear(0.1, 0.1, 0.1)
     for i, option in ipairs(menu.options) do
         if i == menu.selected then
-            love.graphics.setColor(1, 1, 0) -- Highlight selected option
+            love.graphics.setColor(1, 1, 0)
         else
-            love.graphics.setColor(1, 1, 1) -- Normal option color
+            love.graphics.setColor(1, 1, 1)
         end
         love.graphics.printf(option, 0, 200 + (i - 1) * 40, love.graphics.getWidth(), "center")
     end

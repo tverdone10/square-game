@@ -10,6 +10,16 @@ local roomList = {
 
 local currentRoomIndex = 1
 
+local function contains(table, value)
+    for _, v in ipairs(table) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
+
 function rooms.load()
     currentRoomIndex = 1
 end
@@ -37,6 +47,33 @@ function rooms.draw()
             love.graphics.rectangle("fill", 40, height / 2 - 50, 20, 100)
         elseif door == "right" then
             love.graphics.rectangle("fill", width - 60, height / 2 - 50, 20, 100)
+        end
+    end
+end
+
+function rooms.checkCollision(player, wall)
+    local room = roomList[currentRoomIndex]
+    local width, height = love.graphics.getWidth(), love.graphics.getHeight()
+
+    if wall == "top" then
+        if player.y < 50 and not contains(room.doors, "top") then
+            player.y = 50
+            player.velocityY = -player.velocityY -- Bounce back
+        end
+    elseif wall == "bottom" then
+        if player.y + player.size > height - 50 and not contains(room.doors, "bottom") then
+            player.y = height - 50 - player.size
+            player.velocityY = -player.velocityY -- Bounce back
+        end
+    elseif wall == "left" then
+        if player.x < 50 and not contains(room.doors, "left") then
+            player.x = 50
+            player.velocityX = -player.velocityX -- Bounce back
+        end
+    elseif wall == "right" then
+        if player.x + player.size > width - 50 and not contains(room.doors, "right") then
+            player.x = width - 50 - player.size
+            player.velocityX = -player.velocityX -- Bounce back
         end
     end
 end

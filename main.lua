@@ -16,11 +16,10 @@ function love.update(dt)
     if gameState == "game" then
         player.update(dt)
 
-        -- Check if the player enters a "door" and switch rooms
         local newRoom = rooms.checkTransition(player)
         if newRoom then
             rooms.setCurrentRoom(newRoom)
-            player.resetPosition() -- Reset the player's position
+            player.resetPosition()
         end
     end
 end
@@ -29,8 +28,8 @@ function love.draw()
     if gameState == "menu" then
         menu.draw()
     elseif gameState == "game" then
-        rooms.draw()  -- Draw the current room
-        player.draw() -- Draw the player
+        rooms.draw()
+        player.draw()
     end
 end
 

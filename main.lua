@@ -1,6 +1,7 @@
-local menu = require("menu")
-local player = require("player")
-local rooms = require("rooms")
+local menu      = require("menu")
+local player    = require("player")
+local rooms     = require("rooms")
+local pickup    = require("pickup")
 
 local gameState = "menu"
 
@@ -8,7 +9,8 @@ function love.load()
     love.window.setTitle("Room Transition Game")
     love.graphics.setFont(love.graphics.newFont(20))
     rooms.load()
-
+    pickup.load()
+    player.load()
     backgroundAudio = love.audio.newSource("assets/sounds/bgm.mp3", "stream")
 end
 
@@ -20,7 +22,16 @@ function love.update(dt)
         if newRoom then
             rooms.setCurrentRoom(newRoom)
             player.resetPosition()
+            if rooms.roomList[newRoom].hasPickup then
+                pickup.load()
+            end
         end
+
+        if pickup.checkCollision(player) then
+            pickup.spinningCircle.active = true
+        end
+
+        pickup.update(dt, player)
     end
 end
 
@@ -30,6 +41,7 @@ function love.draw()
     elseif gameState == "game" then
         rooms.draw()
         player.draw()
+        pickup.draw() -- Ensure this is here
     end
 end
 

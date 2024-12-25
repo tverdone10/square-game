@@ -3,9 +3,10 @@ local doorWidth = 100
 local doorHeight = 100
 local screenWidth = love.graphics.getWidth()
 local screenHeight = love.graphics.getHeight()
-local roomList = {
+rooms.roomList = {
     {
         color = { 0.1, 0.8, 0.1 },
+        hasPickup = true,
         doors = {
             top = {
                 x = (screenWidth - doorWidth) / 2,
@@ -21,6 +22,7 @@ local roomList = {
     },
     {
         color = { 0.8, 0.1, 0.1 },
+        hasPickup = true,
         doors = {
             top = {
                 x = (screenWidth - doorWidth) / 2,
@@ -35,13 +37,15 @@ local roomList = {
     },
     {
         color = { 0.1, 0.1, 0.8 }, -- Blue Room
+        hasPickup = true,
         doors = {
             left = { y = (screenHeight - doorHeight) / 2, height = doorHeight },
-            right = { y = (screenHeight - doorHeight) / 2, height = doorHeight }
+            right = { y = (screenHeight - doorHeight) / 2, height = doorHeight },
         },
     },
     {
         color = { 0.8, 0.8, 0.1 }, -- Yellow Room
+        hasPickup = true,
         doors = {
             top = {
                 x = (screenWidth - doorWidth) / 2,
@@ -57,8 +61,8 @@ local currentRoomIndex = 1
 local function validateRoomIndex()
     if currentRoomIndex < 1 then
         currentRoomIndex = 1
-    elseif currentRoomIndex > #roomList then
-        currentRoomIndex = #roomList
+    elseif currentRoomIndex > #rooms.roomList then
+        currentRoomIndex = #rooms.roomList
     end
 end
 
@@ -69,7 +73,7 @@ end
 function rooms.draw()
     validateRoomIndex()
 
-    local room = roomList[currentRoomIndex]
+    local room = rooms.roomList[currentRoomIndex]
     love.graphics.clear(unpack(room.color))
 
     love.graphics.setColor(0, 0, 0)
@@ -92,7 +96,7 @@ function rooms.draw()
 end
 
 function rooms.checkCollision(player)
-    local room = roomList[currentRoomIndex]
+    local room = rooms.roomList[currentRoomIndex]
     local width, height = love.graphics.getWidth(), love.graphics.getHeight()
 
     if player.y < 50 then
@@ -132,14 +136,14 @@ function rooms.checkCollision(player)
 end
 
 function rooms.checkTransition(player)
-    local room = roomList[currentRoomIndex]
+    local room = rooms.roomList[currentRoomIndex]
     local width, height = love.graphics.getWidth(), love.graphics.getHeight()
 
     -- Top wall transition
     if player.y < 50 then
         local door = room.doors.top
         if door and player.x + player.size > door.x and player.x < door.x + door.width then
-            return math.random(1, #roomList)
+            return math.random(1, #rooms.roomList)
         end
     end
 
@@ -147,7 +151,7 @@ function rooms.checkTransition(player)
     if player.y + player.size > height - 50 then
         local door = room.doors.bottom
         if door and player.x + player.size > door.x and player.x < door.x + door.width then
-            return math.random(1, #roomList)
+            return math.random(1, #rooms.roomList)
         end
     end
 
@@ -155,7 +159,7 @@ function rooms.checkTransition(player)
     if player.x < 50 then
         local door = room.doors.left
         if door and player.y + player.size > door.y and player.y < door.y + door.height then
-            return math.random(1, #roomList)
+            return math.random(1, #rooms.roomList)
         end
     end
 
@@ -163,7 +167,7 @@ function rooms.checkTransition(player)
     if player.x + player.size > width - 50 then
         local door = room.doors.right
         if door and player.y + player.size > door.y and player.y < door.y + door.height then
-            return math.random(1, #roomList)
+            return math.random(1, #rooms.roomList)
         end
     end
 

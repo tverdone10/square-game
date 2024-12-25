@@ -29,7 +29,12 @@ local function applyAcceleration(velocity, keyNegative, keyPositive, acceleratio
     return velocity
 end
 
-
+function player.load()
+    player.x = 100
+    player.y = 100
+    player.radius = 15 -- Define the radius of the player
+    player.speed = 200
+end
 
 local function applyFriction(velocity, friction, dt)
     if velocity > 0 then

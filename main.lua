@@ -12,6 +12,9 @@ function love.load()
     pickup.load()
     player.load()
     backgroundAudio = love.audio.newSource("assets/sounds/bgm.mp3", "stream")
+    backgroundAudio = love.audio.newSource("assets/sounds/bgm.mp3", "stream")
+    backgroundAudio:setLooping(true)
+    backgroundAudio:play()
 end
 
 function love.update(dt)
@@ -31,7 +34,7 @@ function love.update(dt)
             pickup.spinningCircle.active = true
         end
 
-        pickup.update(dt, player)
+        pickup.update(dt)
     end
 end
 
@@ -41,7 +44,7 @@ function love.draw()
     elseif gameState == "game" then
         rooms.draw()
         player.draw()
-        pickup.draw() -- Ensure this is here
+        pickup.draw()
     end
 end
 

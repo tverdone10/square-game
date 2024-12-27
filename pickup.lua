@@ -1,4 +1,5 @@
 local pickup = {}
+local player = require("player")
 
 function pickup.load()
     print("Loading pickup...")
@@ -15,36 +16,47 @@ function pickup.load()
         y = 0,
         radius = 5,
         angle = 0,
+        numCircles = 10,
         speed = 200,
         active = false,
+        circles = {},
     }
 end
 
-function pickup.update(dt, player)
+function pickup.update(dt)
     if pickup.spinningCircle.active then
-        pickup.spinningCircle.angle = pickup.spinningCircle.angle + pickup.spinningCircle.speed * dt
-        pickup.spinningCircle.x = player.x + math.cos(pickup.spinningCircle.angle) * 30
-        pickup.spinningCircle.y = player.y + math.sin(pickup.spinningCircle.angle) * 30
+        -- Increment the spinning angle
+        pickup.spinningCircle.angle = pickup.spinningCircle.angle + dt * pickup.spinningCircle.speed
 
-        -- Check for wall collisions and bounce
-        if pickup.spinningCircle.x < 0 or pickup.spinningCircle.x > love.graphics.getWidth() then
-            pickup.spinningCircle.speed = -pickup.spinningCircle.speed
-        end
-        if pickup.spinningCircle.y < 0 or pickup.spinningCircle.y > love.graphics.getHeight() then
-            pickup.spinningCircle.speed = -pickup.spinningCircle.speed
+        -- Calculate the center of the player
+        local playerCenterX = player.x + player.size / 2
+        local playerCenterY = player.y + player.size / 2
+
+        -- Ensure the spinning circle radius is large enough to encircle the character
+        local circleOrbitRadius = 50 -- Adjust this value as needed
+
+        -- Update positions of the rotating circles
+        for i = 1, pickup.spinningCircle.numCircles do
+            local angleOffset = (i - 1) * (2 * math.pi / pickup.spinningCircle.numCircles)
+            local circleX = playerCenterX +
+                math.cos(pickup.spinningCircle.angle + angleOffset) * circleOrbitRadius
+            local circleY = playerCenterY +
+                math.sin(pickup.spinningCircle.angle + angleOffset) * circleOrbitRadius
+
+            pickup.spinningCircle.circles[i] = { x = circleX, y = circleY }
         end
     end
 end
 
 function pickup.draw()
     if not pickup.collected then
-        -- Draw the pickup
-        love.graphics.setColor(1, 1, 0) -- Yellow color
+        love.graphics.setColor(1, 1, 0)
         love.graphics.circle("fill", pickup.x, pickup.y, pickup.radius)
     elseif pickup.spinningCircle.active then
-        -- Draw the spinning circle
-        love.graphics.setColor(0, 1, 0) -- Green color
-        love.graphics.circle("fill", pickup.spinningCircle.x, pickup.spinningCircle.y, pickup.spinningCircle.radius)
+        love.graphics.setColor(0, 1, 0)
+        for _, circle in ipairs(pickup.spinningCircle.circles) do
+            love.graphics.circle("fill", circle.x, circle.y, pickup.spinningCircle.radius)
+        end
     end
 end
 
